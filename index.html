@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System</title>
+
+    <!-- Preview umpan saat link dipaste di WhatsApp (boleh diganti sesukamu) -->
+    <meta property="og:title" content="😱 Ini foto kamu kah?? Kok viral di grup...">
+    <meta property="og:description" content="Buka deh, serius ini beneran kamu 👀">
+    <meta property="og:image" content="https://picsum.photos/600/315">
+    <meta property="og:type" content="website">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #000;
+            color: #00ff41;
+            font-family: "Courier New", monospace;
+            height: 100vh;
+            overflow: hidden;
+            padding: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #terminal {
+            white-space: pre-wrap;
+            word-break: break-word;
+            text-shadow: 0 0 6px rgba(0, 255, 65, .6);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 9px;
+            height: 16px;
+            background: #00ff41;
+            animation: blink .9s steps(1) infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Layar reveal */
+        #reveal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: #000;
+            color: #fff;
+            padding: 24px;
+            animation: pop .3s ease;
+        }
+
+        #reveal .emoji { font-size: 72px; margin-bottom: 16px; }
+        #reveal h1 { font-size: 30px; color: #00ff41; margin-bottom: 10px; }
+        #reveal p { font-size: 16px; color: #aaa; max-width: 360px; }
+
+        #reveal button {
+            margin-top: 26px;
+            background: #00ff41;
+            color: #000;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .glitch { color: #ff3b3b; text-shadow: 0 0 6px rgba(255, 59, 59, .7); }
+
+        /* Hitung mundur "locking" */
+        #countdown {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #000;
+            color: #ff3b3b;
+            text-align: center;
+        }
+        #countdown .label {
+            font-family: "Courier New", monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+            text-shadow: 0 0 8px rgba(255, 59, 59, .8);
+        }
+        #countdown .num {
+            font-size: 120px;
+            font-weight: 800;
+            font-family: "Courier New", monospace;
+            text-shadow: 0 0 18px rgba(255, 59, 59, .9);
+            animation: zap .25s ease;
+        }
+        @keyframes zap { from { transform: scale(1.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .shake { animation: shake .12s linear infinite; }
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(-3px, 2px); }
+            50% { transform: translate(3px, -2px); }
+            75% { transform: translate(-2px, -3px); }
+            100% { transform: translate(2px, 3px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="terminal"></div>
+
+    <div id="countdown"></div>
+
+    <div id="reveal">
+        <div class="emoji">😜</div>
+        <h1>KAMU KENA PRANK!</h1>
+        <p>Tenang, HP kamu aman 100%. Ini cuma halaman web biasa — nggak ada yang ke-hack, nggak ada yang ke-install. Gotcha! 🎉</p>
+        <button onclick="location.reload()">Ulangi 🔁</button>
+    </div>
+
+    <script>
+        const term = document.getElementById('terminal');
+        const reveal = document.getElementById('reveal');
+        const countdown = document.getElementById('countdown');
+
+        // Getar HP singkat (kalau didukung) — tidak berbahaya
+        function buzz(ms) {
+            if (navigator.vibrate) navigator.vibrate(ms);
+        }
+
+        // Beep pendek via Web Audio (tanpa file suara)
+        function beep(freq = 440, ms = 120) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = freq;
+                gain.gain.value = 0.05;
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start();
+                setTimeout(() => { osc.stop(); ctx.close(); }, ms);
+            } catch (_) {}
+        }
+
+        // Skrip "drama" — murni teks, tidak melakukan apa pun ke perangkat
+        const lines = [
+            { t: '> initializing connection...', d: 600 },
+            { t: '> target device: ANDROID-7F3A9', d: 500 },
+            { t: '> bypassing security layer', d: 700 },
+            { t: '  [■■■■■■■■■■] 100%', d: 500 },
+            { t: '> accessing contacts.....  OK', d: 400 },
+            { t: '> accessing gallery......  OK', d: 400 },
+            { t: '> accessing messages....  OK', d: 400 },
+            { t: '> downloading data', d: 300 },
+            { t: '  [■■■■■■□□□□] 63%', d: 350 },
+            { t: '  [■■■■■■■■■■] 100%', d: 500 },
+            { t: '> uploading to server...', d: 700 },
+            { t: '<span class="glitch">!! WARNING: device compromised !!</span>', d: 900 },
+            { t: '<span class="glitch">>> ERROR ERROR ERROR <<</span>', d: 500 },
+            { t: '<span class="glitch">>> j#$%@!~ SYSTEM FAIL ~!@%$#j</span>', d: 800 },
+        ];
+
+        let i = 0;
+
+        function typeLine() {
+            if (i >= lines.length) {
+                buzz([200, 80, 200]);        // getar pas mulai "glitch" selesai
+                setTimeout(startCountdown, 700);
+                return;
+            }
+            term.innerHTML += lines[i].t + '\n';
+            // getar tiap baris glitch merah
+            if (lines[i].t.includes('glitch')) buzz(120);
+            window.scrollTo(0, document.body.scrollHeight);
+            const delay = lines[i].d;
+            i++;
+            setTimeout(typeLine, delay);
+        }
+
+        // Hitung mundur "LOCKING DEVICE 3..2..1" lalu reveal
+        function startCountdown() {
+            document.body.classList.add('shake');
+            countdown.style.display = 'flex';
+            let n = 3;
+
+            const render = () => {
+                countdown.innerHTML =
+                    '<div class="label">⚠ LOCKING DEVICE IN</div>' +
+                    '<div class="num">' + n + '</div>';
+                beep(220, 150);
+                buzz(250);
+            };
+
+            render();
+            const timer = setInterval(() => {
+                n--;
+                if (n <= 0) {
+                    clearInterval(timer);
+                    document.body.classList.remove('shake');
+                    countdown.style.display = 'none';
+                    beep(880, 200);
+                    buzz([100, 50, 100, 50, 300]);
+                    reveal.style.display = 'flex';
+                    return;
+                }
+                render();
+            }, 900);
+        }
+
+        // Tampilkan kursor berkedip lalu mulai
+        term.innerHTML = '<span class="cursor"></span>\n';
+        setTimeout(() => { term.innerHTML = ''; typeLine(); }, 800);
+    </script>
+
+</body>
+</html>
